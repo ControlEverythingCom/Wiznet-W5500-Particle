@@ -11,36 +11,38 @@
 #include <string.h>
 #include <spark_wiring_spi.h>
 
-#include "utility/w5100.h"
-#if defined(W5500_ETHERNET_SHIELD)
+#include "utility/w5500.h"
+//#if defined(W5500_ETHERNET_SHIELD)
 
 // W5500 controller instance
-W5500Class W5100;
+W5500Class w5500;
 
-#define SPI_CS A2
+// SPI details
 
-void W5500Class::init(void)
+//SPISettings wiznet_SPI_settings(8000000, MSBFIRST, SPI_MODE0);
+uint8_t SPI_CS = A2;
+
+void W5500Class::init(uint8_t ss_pin)
 {
-	delay(1000);
+	Serial.println("W5500 init");
+	SPI_CS = A2;
 
-#if defined(ARDUINO_ARCH_AVR) || defined(ESP8266) 
+	delay(1000);
 	initSS();
-	SPI.begin();
-#else
 	SPI.begin(A2);
-	// Set clock to 4Mhz (W5100 should support up to about 14Mhz)
-	//  SPI.setClockDivider(SPI_CS, 21);
-	//  SPI.setClockDivider(SPI_CS, 6); // 14 Mhz, ok
-	//  SPI.setClockDivider(SPI_CS, 3); // 28 Mhz, ok
 	SPI.setClockDividerReference(SPI_CLK_ARDUINO);
-	SPI.setClockDivider(SPI_CLOCK_DIV2); // 42 Mhz, ok
+//	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
 	SPI.setDataMode(SPI_MODE0);
-#endif
+	w5500.swReset();
+
 	for (int i=0; i<MAX_SOCK_NUM; i++) {
 		uint8_t cntl_byte = (0x0C + (i<<5));
 		write( 0x1E, cntl_byte, 2); //0x1E - Sn_RXBUF_SIZE
 		write( 0x1F, cntl_byte, 2); //0x1F - Sn_TXBUF_SIZE
 	}
+	Serial.println("init finished");
 }
 
 uint16_t W5500Class::getTXFreeSize(SOCKET s)
@@ -76,14 +78,12 @@ void W5500Class::send_data_processing(SOCKET s, const uint8_t *data, uint16_t le
 
 void W5500Class::send_data_processing_offset(SOCKET s, uint16_t data_offset, const uint8_t *data, uint16_t len)
 {
-
 	uint16_t ptr = readSnTX_WR(s);
 	uint8_t cntl_byte = (0x14+(s<<5));
 	ptr += data_offset;
 	write(ptr, cntl_byte, data, len);
 	ptr += len;
 	writeSnTX_WR(s, ptr);
-
 }
 
 void W5500Class::recv_data_processing(SOCKET s, uint8_t *data, uint16_t len, uint8_t peek)
@@ -107,27 +107,29 @@ void W5500Class::read_data(SOCKET s, volatile uint16_t src, volatile uint8_t *ds
 
 uint8_t W5500Class::write(uint16_t _addr, uint8_t _cb, uint8_t _data)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ESP8266) 
+	SPI.setClockDividerReference(SPI_CLK_ARDUINO);
+//	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
 	setSS();
 	SPI.transfer(_addr >> 8);
 	SPI.transfer(_addr & 0xFF);
 	SPI.transfer(_cb);
 	SPI.transfer(_data);
 	resetSS();
-#else
-	digitalWrite(A2, LOW);
-	SPI.transfer(_addr >>8);//SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(_addr & 0xFF);//SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-	SPI.transfer(_cb);//SPI.transfer(SPI_CS, _cb, SPI_CONTINUE);
-	SPI.transfer(_data);//SPI.transfer(SPI_CS, _data);
-	digitalWrite(A2, HIGH);
-#endif    
+	SPI.endTransaction();
+
 	return 1;
 }
 
 uint16_t W5500Class::write(uint16_t _addr, uint8_t _cb, const uint8_t *_buf, uint16_t _len)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ESP8266) 
+	SPI.setClockDividerReference(SPI_CLK_ARDUINO);
+//	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
 	setSS();
 	SPI.transfer(_addr >> 8);
 	SPI.transfer(_addr & 0xFF);
@@ -136,45 +138,35 @@ uint16_t W5500Class::write(uint16_t _addr, uint8_t _cb, const uint8_t *_buf, uin
 		SPI.transfer(_buf[i]);
 	}
 	resetSS();
-#else
-	uint16_t i;
-	digitalWrite(A2, LOW);
-	SPI.transfer(_addr >>8);//SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(_addr & 0xFF);//SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-	SPI.transfer(_cb);//SPI.transfer(SPI_CS, _cb, SPI_CONTINUE);
-	for (i=0; i<_len-1; i++){
-		SPI.transfer(_buf[i]);//SPI.transfer(SPI_CS, _buf[i], SPI_CONTINUE);
-	}
-	SPI.transfer(_buf[i]);//SPI.transfer(SPI_CS, _buf[i]);
-	digitalWrite(A2, HIGH);
+	SPI.endTransaction();
 
-#endif    
 	return _len;
 }
 
 uint8_t W5500Class::read(uint16_t _addr, uint8_t _cb)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ESP8266) 
+	SPI.setClockDividerReference(SPI_CLK_ARDUINO);
+//	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
 	setSS();
 	SPI.transfer(_addr >> 8);
 	SPI.transfer(_addr & 0xFF);
 	SPI.transfer(_cb);
 	uint8_t _data = SPI.transfer(0);
 	resetSS();
-#else
-	digitalWrite(A2, LOW);
-	SPI.transfer(_addr >>8);//SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(_addr & 0xFF);//SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-	SPI.transfer(_cb);//SPI.transfer(SPI_CS, _cb, SPI_CONTINUE);
-	uint8_t _data = SPI.transfer(0);//uint8_t _data = SPI.transfer(SPI_CS, 0);
-	digitalWrite(A2, HIGH);
-#endif    
+	SPI.endTransaction();
+	Serial.printf("Read returning 0x%02X\n", _data);
+
 	return _data;
 }
 
 uint16_t W5500Class::read(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len)
 { 
-#if defined(ARDUINO_ARCH_AVR) || defined(ESP8266) 
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
 	setSS();
 	SPI.transfer(_addr >> 8);
 	SPI.transfer(_addr & 0xFF);
@@ -183,20 +175,8 @@ uint16_t W5500Class::read(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _
 		_buf[i] = SPI.transfer(0);
 	}
 	resetSS();
-#else
-	uint16_t i;
-	digitalWrite(A2, LOW);
-	SPI.transfer(_addr >>8);//SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(_addr & 0xFF);//SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-	SPI.transfer(_cb);//SPI.transfer(SPI_CS, _cb, SPI_CONTINUE);
-	for (i=0; i<_len-1; i++){
-		_buf[i] = SPI.transfer(0);//SPI.transfer(SPI_CS, 0, SPI_CONTINUE);
-	}
-	_buf[_len-1] = SPI.transfer(0);//SPI.transfer(SPI_CS, 0);
-	digitalWrite(A2, HIGH);
+	SPI.endTransaction();
 
-
-#endif    
 	return _len;
 }
 
@@ -207,4 +187,23 @@ void W5500Class::execCmdSn(SOCKET s, SockCMD _cmd) {
 	while (readSnCR(s))
 		;
 }
-#endif
+
+
+uint8_t W5500Class::readVersion(void)
+{
+	SPI.setClockSpeed(8000000);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(SPI_MODE0);
+	setSS();
+	SPI.transfer( 0x00 );
+	SPI.transfer( 0x39 );
+	SPI.transfer( 0x01);
+	uint8_t _data = SPI.transfer(0);
+	resetSS();
+	SPI.endTransaction();
+
+	return _data;
+}
+
+
+//#endif

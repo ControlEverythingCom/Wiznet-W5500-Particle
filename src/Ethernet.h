@@ -1,12 +1,16 @@
 /*
  modified 12 Aug 2013
  by Soohwan Kim (suhwan@wiznet.co.kr)
-*/
+ - 10 Apr. 2015
+ Added support for Arduino Ethernet Shield 2
+ by Arduino.org team
+
+ */
 #ifndef ethernet_h
 #define ethernet_h
 
 #include <inttypes.h>
-#include "utility/w5100.h"
+#include "utility/w5500.h"
 #include "spark_wiring_ipaddress.h"
 #include "EthernetClient.h"
 #include "EthernetServer.h"
@@ -17,10 +21,17 @@
 class EthernetClass {
 private:
   IPAddress _dnsServerAddress;
+  char* _dnsDomainName;
+  char* _hostName;
   DhcpClass* _dhcp;
 public:
+  uint8_t w5500_cspin;
+
   static uint8_t _state[MAX_SOCK_NUM];
   static uint16_t _server_port[MAX_SOCK_NUM];
+
+  EthernetClass() { _dhcp = NULL; w5500_cspin = 10; }
+  void init(uint8_t _cspin = 10) { w5500_cspin = _cspin; }
 
 #if defined(WIZ550io_WITH_MACADDRESS)
   // Initialize function when use the ioShield serise (included WIZ550io)
@@ -50,6 +61,8 @@ public:
   IPAddress subnetMask();
   IPAddress gatewayIP();
   IPAddress dnsServerIP();
+  char* dnsDomainName();
+  char* hostName();
 
   friend class EthernetClient;
   friend class EthernetServer;
