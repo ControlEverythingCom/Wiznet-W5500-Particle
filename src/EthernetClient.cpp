@@ -67,7 +67,13 @@ int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
 	delay(1000);
 
 	byte* lA = (byte*)&ip.raw().ipv4;
+	for (int i = 0; i < (4 / 2); i++) {
+		float temporary = lA[i];                 // temporary wasn't declared
+		lA[i] = lA[(4 - 1) - i];
+		lA[(4 - 1) - i] = temporary;
+	}
 	Serial.printf("Attempting to connect to: %i.%i.%i.%i on port %i", lA[3], lA[2], lA[1], lA[0], port);
+	Serial.printf("_sock = %i\n", _sock);
 	if (!::connect(_sock, lA, port)) {
 		_sock = MAX_SOCK_NUM;
 		return 0;
@@ -86,7 +92,6 @@ int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
 			Serial.println("Got here");
 			return 0;
 		}else{
-			Serial.printf("status() = %02X \n", state);
 		}
 	}
 

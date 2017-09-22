@@ -157,7 +157,7 @@ uint8_t W5500Class::read(uint16_t _addr, uint8_t _cb)
 	uint8_t _data = SPI.transfer(0);
 	resetSS();
 	SPI.endTransaction();
-	Serial.printf("Read returning 0x%02X\n", _data);
+//	Serial.printf("Read returning 0x%02X\n", _data);
 
 	return _data;
 }
@@ -181,6 +181,7 @@ uint16_t W5500Class::read(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _
 }
 
 void W5500Class::execCmdSn(SOCKET s, SockCMD _cmd) {
+
 	// Send command to socket
 	writeSnCR(s, _cmd);
 	// Wait for command to complete

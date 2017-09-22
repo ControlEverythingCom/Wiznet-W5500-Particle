@@ -402,6 +402,12 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
                 return -9;//INVALID_RESPONSE;
             }
             byte* lA = (byte*)&aAddress.raw().ipv4;
+            for (int i = 0; i < (4 / 2); i++) {
+            	float temporary = lA[i];                 // temporary wasn't declared
+            	lA[i] = lA[(4 - 1) - i];
+            	lA[(4 - 1) - i] = temporary;
+            }
+
             iUdp.read(lA, 4);
             return SUCCESS;
         }

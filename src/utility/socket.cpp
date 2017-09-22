@@ -84,6 +84,9 @@ uint8_t connect(SOCKET s, uint8_t * addr, uint16_t port)
 	w5500.writeSnDIPR(s, addr);
 	w5500.writeSnDPORT(s, port);
 	Serial.printf("execCmdSN socket IP: %i.%i.%i.%i \n", addr[3], addr[2], addr[1], addr[0]);
+
+
+
 	w5500.execCmdSn(s, Sock_CONNECT);
 
 	return 1;

@@ -96,6 +96,11 @@ int EthernetUDP::beginPacket(IPAddress ip, uint16_t port)
 {
   _offset = 0;
   byte* lA = (byte*)&ip.raw().ipv4;
+  for (int i = 0; i < (4 / 2); i++) {
+	  float temporary = lA[i];                 // temporary wasn't declared
+	  lA[i] = lA[(4 - 1) - i];
+	  lA[(4 - 1) - i] = temporary;
+  }
   return startUDP(_sock, lA, port);
 }
 

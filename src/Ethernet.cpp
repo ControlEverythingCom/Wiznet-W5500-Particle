@@ -80,6 +80,16 @@ void EthernetClass::begin(IPAddress local_ip, IPAddress dns_server, IPAddress ga
 	_dnsServerAddress = dns_server;
 }
 #else
+
+void reverseArray( byte array[], int arraylength )
+{
+    for (int i = 0; i < (arraylength / 2); i++) {
+        float temporary = array[i];                 // temporary wasn't declared
+        array[i] = array[(arraylength - 1) - i];
+        array[(arraylength - 1) - i] = temporary;
+    }
+}
+
 int EthernetClass::begin(uint8_t *mac_address)
 {
 	if (_dhcp != NULL) {
@@ -102,6 +112,11 @@ int EthernetClass::begin(uint8_t *mac_address)
 		byte* lA = (byte*)&_dhcp->getLocalIp().raw().ipv4;
 		byte* gA = (byte*)&_dhcp->getGatewayIp().raw().ipv4;
 		byte* sA = (byte*)&_dhcp->getSubnetMask().raw().ipv4;
+
+		reverseArray(lA, 4);
+		reverseArray(gA, 4);
+		reverseArray(sA, 4);
+
 		w5500.setIPAddress(lA);
 		w5500.setGatewayIp(gA);
 		w5500.setSubnetMask(sA);
@@ -145,9 +160,13 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
 	byte* gA = (byte*)&gateway.raw().ipv4;
 	byte* sA = (byte*)&subnet.raw().ipv4;
 
-	Serial.printf("Local IP: %i.%i.%i.%i\n", lA[0], lA[1], lA[2], lA[3]);
-	Serial.printf("Gateway IP: %i.%i.%i.%i\n", gA[0], gA[1], gA[2], gA[3]);
-	Serial.printf("Subnet: %i.%i.%i.%i\n", sA[0], sA[1], sA[2], sA[3]);
+	reverseArray(lA, 4);
+	reverseArray(gA, 4);
+	reverseArray(sA, 4);
+
+	Serial.printf("Local IP: %i.%i.%i.%i\n", lA[3], lA[2], lA[1], lA[0]);
+	Serial.printf("Gateway IP: %i.%i.%i.%i\n", gA[3], gA[2], gA[1], gA[0]);
+	Serial.printf("Subnet: %i.%i.%i.%i\n", sA[3], sA[2], sA[1], sA[0]);
 
 	w5500.setIPAddress(lA);
 	w5500.setGatewayIp(gA);
@@ -156,7 +175,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
 	w5500.getIPAddress(retBytes);
-	Serial.printf("IP: %i.%i.%i.%i\n", retBytes[3], retBytes[2], retBytes[1], retBytes[0]);
+	Serial.printf("IP: %i.%i.%i.%i\n", retBytes[0], retBytes[1], retBytes[2], retBytes[3]);
 
 	_dnsServerAddress = dns_server;
 }
@@ -172,6 +191,10 @@ int EthernetClass::maintain(){
 		byte* lA = (byte*)&_dhcp->getLocalIp().raw().ipv4;
 		byte* gA = (byte*)&_dhcp->getGatewayIp().raw().ipv4;
 		byte* sA = (byte*)&_dhcp->getSubnetMask().raw().ipv4;
+
+		reverseArray(lA, 4);
+		reverseArray(gA, 4);
+		reverseArray(sA, 4);
 
 		switch ( rc ){
 		case DHCP_CHECK_NONE:
@@ -202,6 +225,7 @@ IPAddress EthernetClass::localIP()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
+	reverseArray(retBytes, 4);
 	w5500.getIPAddress(retBytes);
 	return ret;
 }
@@ -210,6 +234,7 @@ IPAddress EthernetClass::subnetMask()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
+	reverseArray(retBytes, 4);
 	w5500.getSubnetMask(retBytes);
 	return ret;
 }
@@ -218,6 +243,7 @@ IPAddress EthernetClass::gatewayIP()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
+	reverseArray(retBytes, 4);
 	w5500.getGatewayIp(retBytes);
 	return ret;
 }
