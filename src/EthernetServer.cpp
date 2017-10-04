@@ -1,5 +1,5 @@
-#include "utility/w5500.h"
-#include "utility/socket.h"
+#include "w5500.h"
+#include "socket.h"
 extern "C" {
 #include "string.h"
 }
@@ -68,12 +68,12 @@ EthernetClient EthernetServer::available()
   return EthernetClient(MAX_SOCK_NUM);
 }
 
-size_t EthernetServer::write(uint8_t b) 
+size_t EthernetServer::write(uint8_t b)
 {
   return write(&b, 1);
 }
 
-size_t EthernetServer::write(const uint8_t *buffer, size_t size) 
+size_t EthernetServer::write(const uint8_t *buffer, size_t size)
 {
   size_t n = 0;
 

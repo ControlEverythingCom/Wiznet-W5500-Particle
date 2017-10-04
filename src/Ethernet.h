@@ -10,7 +10,7 @@
 #define ethernet_h
 
 #include <inttypes.h>
-#include "utility/w5500.h"
+#include "w5500.h"
 #include "spark_wiring_ipaddress.h"
 #include "EthernetClient.h"
 #include "EthernetServer.h"
@@ -54,7 +54,7 @@ public:
   void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
 
 #endif
-  
+
   int maintain();
 
   IPAddress localIP();

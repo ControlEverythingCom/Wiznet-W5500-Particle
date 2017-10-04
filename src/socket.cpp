@@ -1,5 +1,5 @@
-#include "utility/w5500.h"
-#include "utility/socket.h"
+#include "w5500.h"
+#include "socket.h"
 #include "spark_wiring_usbserial.h"
 
 static uint16_t local_port;
@@ -10,10 +10,8 @@ static uint16_t local_port;
  */
 uint8_t socket(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag)
 {
-	Serial.println("Creating new socket.");
 	if ((protocol == SnMR::TCP) || (protocol == SnMR::UDP) || (protocol == SnMR::IPRAW) || (protocol == SnMR::MACRAW) || (protocol == SnMR::PPPOE))
 	{
-		restart:
 		close(s);
 		w5500.writeSnMR(s, protocol | flag);
 		if (port != 0) {
@@ -25,13 +23,7 @@ uint8_t socket(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag)
 		}
 
 		w5500.execCmdSn(s, Sock_OPEN);
-		if(w5500.readSnSR(s) != SnSR::INIT){
-			Serial.println("going to Restart");
-			goto restart;
-		}
 
-
-		Serial.println("returning 1");
 		return 1;
 	}
 
@@ -63,14 +55,13 @@ uint8_t listen(SOCKET s)
 
 
 /**
- * @brief	This function established  the connection for the channel in Active (client) mode. 
+ * @brief	This function established  the connection for the channel in Active (client) mode.
  * 		This function waits for the untill the connection is established.
- * 		
+ *
  * @return	1 for success else 0.
  */
 uint8_t connect(SOCKET s, uint8_t * addr, uint16_t port)
 {
-	Serial.println("In socket.connect");
 	if
 	(
 			((addr[0] == 0xFF) && (addr[1] == 0xFF) && (addr[2] == 0xFF) && (addr[3] == 0xFF)) ||
@@ -78,12 +69,10 @@ uint8_t connect(SOCKET s, uint8_t * addr, uint16_t port)
 			(port == 0x00)
 	)
 		return 0;
-	Serial.println("Past IP and port validation check");
 
 	// set destination IP
 	w5500.writeSnDIPR(s, addr);
 	w5500.writeSnDPORT(s, port);
-	Serial.printf("execCmdSN socket IP: %i.%i.%i.%i \n", addr[3], addr[2], addr[1], addr[0]);
 
 
 
@@ -155,7 +144,7 @@ uint16_t send(SOCKET s, const uint8_t * buf, uint16_t len)
 /**
  * @brief	This function is an application I/F function which is used to receive the data in TCP mode.
  * 		It continues to wait for data as much as the application wants to receive.
- * 		
+ *
  * @return	received data size for success else -1.
  */
 int16_t recv(SOCKET s, uint8_t *buf, int16_t len)
@@ -193,7 +182,7 @@ int16_t recv(SOCKET s, uint8_t *buf, int16_t len)
 
 /**
  * @brief	Returns the first byte in the receive queue (no checking)
- * 		
+ *
  * @return
  */
 uint16_t peek(SOCKET s, uint8_t *buf)
@@ -205,9 +194,9 @@ uint16_t peek(SOCKET s, uint8_t *buf)
 
 
 /**
- * @brief	This function is an application I/F function which is used to send the data for other then TCP mode. 
+ * @brief	This function is an application I/F function which is used to send the data for other then TCP mode.
  * 		Unlike TCP transmission, The peer's destination address and the port is needed.
- * 		
+ *
  * @return	This function return send data size for success else -1.
  */
 uint16_t sendto(SOCKET s, const uint8_t *buf, uint16_t len, uint8_t *addr, uint16_t port)
@@ -255,8 +244,8 @@ uint16_t sendto(SOCKET s, const uint8_t *buf, uint16_t len, uint8_t *addr, uint1
 
 /**
  * @brief	This function is an application I/F function which is used to receive the data in other then
- * 	TCP mode. This function is used to receive UDP, IP_RAW and MAC_RAW mode, and handle the header as well. 
- * 	
+ * 	TCP mode. This function is used to receive UDP, IP_RAW and MAC_RAW mode, and handle the header as well.
+ *
  * @return	This function return received data size for success else -1.
  */
 uint16_t recvfrom(SOCKET s, uint8_t *buf, uint16_t len, uint8_t *addr, uint16_t *port)
@@ -418,4 +407,3 @@ int sendUDP(SOCKET s)
 	/* Sent ok */
 	return 1;
 }
-

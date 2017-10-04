@@ -2,9 +2,9 @@
 // (c) Copyright 2009-2010 MCQN Ltd.
 // Released under Apache License, version 2.0
 
-#include "utility/w5500.h"
+#include "w5500.h"
 #include "EthernetUdp.h"
-#include "utility/util.h"
+#include "util.h"
 
 #include "Dns.h"
 #include <string.h>
@@ -131,7 +131,7 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult)
     {
         return INVALID_SERVER;
     }
-	
+
     // Find a socket to use
     if (iUdp.begin(1024+(millis() & 0xF)) == 1)
     {
@@ -427,4 +427,3 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
     // If we get here then we haven't found an answer
     return -10;//INVALID_RESPONSE;
 }
-

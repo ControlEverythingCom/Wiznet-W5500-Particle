@@ -11,7 +11,7 @@
 #include <string.h>
 #include <spark_wiring_spi.h>
 
-#include "utility/w5500.h"
+#include "w5500.h"
 //#if defined(W5500_ETHERNET_SHIELD)
 
 // W5500 controller instance
@@ -24,7 +24,6 @@ uint8_t SPI_CS = A2;
 
 void W5500Class::init(uint8_t ss_pin)
 {
-	Serial.println("W5500 init");
 	SPI_CS = A2;
 
 	delay(1000);
@@ -42,7 +41,6 @@ void W5500Class::init(uint8_t ss_pin)
 		write( 0x1E, cntl_byte, 2); //0x1E - Sn_RXBUF_SIZE
 		write( 0x1F, cntl_byte, 2); //0x1F - Sn_TXBUF_SIZE
 	}
-	Serial.println("init finished");
 }
 
 uint16_t W5500Class::getTXFreeSize(SOCKET s)
@@ -157,13 +155,12 @@ uint8_t W5500Class::read(uint16_t _addr, uint8_t _cb)
 	uint8_t _data = SPI.transfer(0);
 	resetSS();
 	SPI.endTransaction();
-//	Serial.printf("Read returning 0x%02X\n", _data);
 
 	return _data;
 }
 
 uint16_t W5500Class::read(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len)
-{ 
+{
 	SPI.setClockSpeed(8000000);
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setDataMode(SPI_MODE0);

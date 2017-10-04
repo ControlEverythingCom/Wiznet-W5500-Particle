@@ -5,6 +5,10 @@
  Added support for Arduino Ethernet Shield 2
  by Arduino.org team
  */
+ /*
+ modified 4 Oct 2017
+ by Travis Elliott(travis@controlanything.com) for compatibility with Particle
+ */
 
 #include "Ethernet.h"
 #include "Dhcp.h"
@@ -104,10 +108,12 @@ int EthernetClass::begin(uint8_t *mac_address)
 
 	// Now try to get our config info from a DHCP server
 	int ret = _dhcp->beginWithDHCP(mac_address);
+	delay(200);
 	if(ret == 1)
 	{
 		// We've successfully found a DHCP server and got our configuration info, so set things
 		// accordingly
+
 
 		byte* lA = (byte*)&_dhcp->getLocalIp().raw().ipv4;
 		byte* gA = (byte*)&_dhcp->getGatewayIp().raw().ipv4;
@@ -121,8 +127,6 @@ int EthernetClass::begin(uint8_t *mac_address)
 		w5500.setGatewayIp(gA);
 		w5500.setSubnetMask(sA);
 		_dnsServerAddress = _dhcp->getDnsServerIp();
-//		_dnsDomainName = _dhcp->getDnsDomainName();
-//		_hostName = _dhcp->getHostName();
 	}
 
 	return ret;
@@ -164,10 +168,6 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
 	reverseArray(gA, 4);
 	reverseArray(sA, 4);
 
-	Serial.printf("Local IP: %i.%i.%i.%i\n", lA[3], lA[2], lA[1], lA[0]);
-	Serial.printf("Gateway IP: %i.%i.%i.%i\n", gA[3], gA[2], gA[1], gA[0]);
-	Serial.printf("Subnet: %i.%i.%i.%i\n", sA[3], sA[2], sA[1], sA[0]);
-
 	w5500.setIPAddress(lA);
 	w5500.setGatewayIp(gA);
 	w5500.setSubnetMask(sA);
@@ -175,7 +175,6 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
 	w5500.getIPAddress(retBytes);
-	Serial.printf("IP: %i.%i.%i.%i\n", retBytes[0], retBytes[1], retBytes[2], retBytes[3]);
 
 	_dnsServerAddress = dns_server;
 }
@@ -225,8 +224,9 @@ IPAddress EthernetClass::localIP()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
-	reverseArray(retBytes, 4);
+
 	w5500.getIPAddress(retBytes);
+	reverseArray(retBytes, 4);
 	return ret;
 }
 
@@ -234,8 +234,8 @@ IPAddress EthernetClass::subnetMask()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
-	reverseArray(retBytes, 4);
 	w5500.getSubnetMask(retBytes);
+	reverseArray(retBytes, 4);
 	return ret;
 }
 
@@ -243,8 +243,8 @@ IPAddress EthernetClass::gatewayIP()
 {
 	IPAddress ret;
 	byte* retBytes = (byte*)&ret.raw().ipv4;
-	reverseArray(retBytes, 4);
 	w5500.getGatewayIp(retBytes);
+	reverseArray(retBytes, 4);
 	return ret;
 }
 

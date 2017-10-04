@@ -1,5 +1,5 @@
-#include "utility/w5500.h"
-#include "utility/socket.h"
+#include "w5500.h"
+#include "socket.h"
 
 extern "C" {
 #include "string.h"
@@ -36,25 +36,19 @@ int EthernetClient::connect(const char* host, uint16_t port, network_interface_t
 }
 
 int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
-	Serial.println("in connect function");
 	if (_sock != MAX_SOCK_NUM){
-		Serial.println("_sock != MAX_SOCK_NUM");
 		return 0;
 	}
-	Serial.println("Here");
 
 	for (int i = 0; i < MAX_SOCK_NUM; i++) {
-		Serial.println("Inside For Loop");
 		uint8_t s = w5500.readSnSR(i);
 		if (s == SnSR::CLOSED || s == SnSR::FIN_WAIT || s == SnSR::CLOSE_WAIT) {
 			_sock = i;
 			break;
 		}
 	}
-	Serial.println("After for loop in connect");
 
 	if (_sock == MAX_SOCK_NUM){
-		Serial.println("_sock != MAX_SOCK_NUM, after loop");
 		return 0;
 	}
 
@@ -72,8 +66,6 @@ int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
 		lA[i] = lA[(4 - 1) - i];
 		lA[(4 - 1) - i] = temporary;
 	}
-	Serial.printf("Attempting to connect to: %i.%i.%i.%i on port %i", lA[3], lA[2], lA[1], lA[0], port);
-	Serial.printf("_sock = %i\n", _sock);
 	if (!::connect(_sock, lA, port)) {
 		_sock = MAX_SOCK_NUM;
 		return 0;
@@ -82,14 +74,12 @@ int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
 	uint8_t ipArray[4];
 	w5500.readSnDIPR(_sock, ipArray);
 	uint16_t setPort = w5500.readSnDPORT(_sock);
-	Serial.printf("_sock IP and port: %i.%i.%i.%i on port %i", ipArray[3], ipArray[2], ipArray[1], ipArray[0], setPort);
 
 	while (status() != SnSR::ESTABLISHED) {
 		delay(10);
 		uint8_t state = status();
 		if (state == SnSR::CLOSED) {
 			_sock = MAX_SOCK_NUM;
-			Serial.println("Got here");
 			return 0;
 		}else{
 		}
