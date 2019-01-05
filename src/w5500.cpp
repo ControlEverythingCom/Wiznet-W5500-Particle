@@ -14,6 +14,8 @@
 #include "w5500.h"
 //#if defined(W5500_ETHERNET_SHIELD)
 
+#define SPI SPI2
+
 // W5500 controller instance
 W5500Class w5500;
 
@@ -24,11 +26,11 @@ uint8_t SPI_CS = A2;
 
 void W5500Class::init(uint8_t ss_pin)
 {
-	SPI_CS = A2;
+	SPI_CS = D5;
 
 	delay(1000);
 	initSS();
-	SPI.begin(A2);
+	SPI.begin(SPI_CS);
 	SPI.setClockDividerReference(SPI_CLK_ARDUINO);
 //	SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 	SPI.setClockSpeed(8000000);
