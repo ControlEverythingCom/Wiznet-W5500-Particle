@@ -13,7 +13,7 @@
 
 #ifndef	W5500_H_INCLUDED
 #define	W5500_H_INCLUDED
-#define SPI_SS D5
+#define SPI_SS A2
 #define MAX_SOCK_NUM 8
 #include <Arduino.h>
 #include <spark_wiring_spi.h>

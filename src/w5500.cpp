@@ -14,7 +14,7 @@
 #include "w5500.h"
 //#if defined(W5500_ETHERNET_SHIELD)
 
-#define SPI SPI2
+// #define SPI SPI2
 
 // W5500 controller instance
 W5500Class w5500;
@@ -26,7 +26,7 @@ uint8_t SPI_CS = A2;
 
 void W5500Class::init(uint8_t ss_pin)
 {
-	SPI_CS = D5;
+	SPI_CS = A2;
 
 	delay(1000);
 	initSS();
