@@ -2,6 +2,9 @@
 
 A Particle library for the NCD Particle Ethernet Overlay shield.  Buy the Ethernet Overlay and see more at https://NCD.io
 
+## [CHANGES From Main Library]
+patched for W5500 dns resolved ipaddress issue
+
 ## Usage
 
 TODO: Fill in information on hardware usage.

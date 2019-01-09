@@ -13,11 +13,13 @@
 
 #ifndef	W5500_H_INCLUDED
 #define	W5500_H_INCLUDED
-
+#define SPI_SS A2
 #define MAX_SOCK_NUM 8
 #include <Arduino.h>
 #include <spark_wiring_spi.h>
 #include <spark_wiring_usbserial.h>
+
+
 
 extern uint8_t SPI_CS;
 
@@ -338,9 +340,9 @@ static const uint16_t RSIZE = 2048; // Max Rx buffer size
 
 private:
 // could do inline optimizations
-static inline void initSS()  { pinMode(A2, OUTPUT); }
-static inline void setSS()   {  digitalWrite(A2, LOW); }
-static inline void resetSS() {  digitalWrite(A2, HIGH); }
+static inline void initSS()  { pinMode(SPI_SS, OUTPUT); }
+static inline void setSS()   {  digitalWrite(SPI_SS, LOW); }
+static inline void resetSS() {  digitalWrite(SPI_SS, HIGH); }
 };
 
 extern W5500Class w5500;

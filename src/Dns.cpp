@@ -401,14 +401,10 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
                 iUdp.flush();
                 return -9;//INVALID_RESPONSE;
             }
-            byte* lA = (byte*)&aAddress.raw().ipv4;
-            for (int i = 0; i < (4 / 2); i++) {
-            	float temporary = lA[i];                 // temporary wasn't declared
-            	lA[i] = lA[(4 - 1) - i];
-            	lA[(4 - 1) - i] = temporary;
-            }
+            uint8_t  _temp_ip[4];
+            iUdp.read(_temp_ip, 4);
 
-            iUdp.read(lA, 4);
+            aAddress = IPAddress(_temp_ip);
             return SUCCESS;
         }
         else
