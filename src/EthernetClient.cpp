@@ -56,7 +56,7 @@ int EthernetClient::connect(IPAddress ip, uint16_t port, network_interface_t) {
 	if (_srcport == 0){
 		_srcport = 1024;
 	}
-	socket(_sock, SnMR::TCP, _srcport, 0);
+	wSocket(_sock, SnMR::TCP, _srcport, 0);
 
 	delay(1000);
 

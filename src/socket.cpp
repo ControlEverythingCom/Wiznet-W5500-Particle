@@ -8,7 +8,7 @@ static uint16_t local_port;
  * @brief	This Socket function initialize the channel in perticular mode, and set the port and wait for w5500 done it.
  * @return 	1 for success else 0.
  */
-uint8_t socket(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag)
+uint8_t wSocket(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag)
 {
 	if ((protocol == SnMR::TCP) || (protocol == SnMR::UDP) || (protocol == SnMR::IPRAW) || (protocol == SnMR::MACRAW) || (protocol == SnMR::PPPOE))
 	{

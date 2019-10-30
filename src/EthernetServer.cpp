@@ -19,7 +19,7 @@ void EthernetServer::begin()
   for (int sock = 0; sock < MAX_SOCK_NUM; sock++) {
     EthernetClient client(sock);
     if (client.status() == SnSR::CLOSED) {
-      socket(sock, SnMR::TCP, _port, 0);
+      wSocket(sock, SnMR::TCP, _port, 0);
       listen(sock);
       EthernetClass::_server_port[sock] = _port;
       break;

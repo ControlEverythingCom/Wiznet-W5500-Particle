@@ -53,7 +53,7 @@ uint8_t EthernetUDP::begin(uint16_t port) {
 
   _port = port;
   _remaining = 0;
-  socket(_sock, SnMR::UDP, _port, 0);
+  wSocket(_sock, SnMR::UDP, _port, 0);
 
   return 1;
 }
